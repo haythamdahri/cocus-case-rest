@@ -5,9 +5,11 @@ import com.cocus.microservices.cases.clients.CustomerClient;
 import com.cocus.microservices.cases.dto.CaseDTO;
 import com.cocus.microservices.cases.dto.CaseRequestDTO;
 import com.cocus.microservices.cases.dto.CustomerDTO;
+import com.cocus.microservices.cases.helpers.CustomerHelper;
 import com.cocus.microservices.cases.repositories.CaseRepository;
 import com.cocus.microservices.cases.services.CaseService;
 import com.cocus.microservices.label.exceptions.NotFoundException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,15 +22,15 @@ import java.util.stream.Collectors;
 public class CaseServiceImpl implements CaseService {
 
     private final CaseRepository caseRepository;
-    private final CustomerClient customerClient;
+    private final CustomerHelper customerHelper;
 
-    public CaseServiceImpl(CaseRepository caseRepository, CustomerClient customerClient) {
+    public CaseServiceImpl(CaseRepository caseRepository, CustomerHelper customerHelper) {
         this.caseRepository = caseRepository;
-        this.customerClient = customerClient;
+        this.customerHelper = customerHelper;
     }
 
     @Override
-    public CaseBO saveCase(CaseRequestDTO caseRequest, String username) {
+    public CaseBO saveCase(HttpHeaders httpHeaders, CaseRequestDTO caseRequest, String username) {
         CaseBO applicationCase;
         if( caseRequest.getId() == null ) {
             applicationCase = new CaseBO();
@@ -38,7 +40,7 @@ public class CaseServiceImpl implements CaseService {
         applicationCase.setContent(caseRequest.getContent());
         applicationCase = this.caseRepository.save(applicationCase);
         // Retrieve Customer
-        CustomerDTO customer = this.customerClient.getCustomer(username).getBody();
+        CustomerDTO customer = this.customerHelper.getCustomer(httpHeaders, username);
         // Assign Case To The Customer
         this.caseRepository.updateCaseCustomer(applicationCase.getId(), customer.getId());
         // Return Case

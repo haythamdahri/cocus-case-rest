@@ -3,6 +3,7 @@ package com.cocus.microservices.cases.services;
 import com.cocus.microservices.bo.entities.CaseBO;
 import com.cocus.microservices.cases.dto.CaseDTO;
 import com.cocus.microservices.cases.dto.CaseRequestDTO;
+import org.springframework.http.HttpHeaders;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  */
 public interface CaseService {
 
-    CaseBO saveCase(CaseRequestDTO caseRequest, String username);
+    CaseBO saveCase(HttpHeaders httpHeaders, CaseRequestDTO caseRequest, String username);
 
     CaseBO getCase(Long id);
 

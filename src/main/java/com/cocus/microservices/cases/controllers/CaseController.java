@@ -5,6 +5,7 @@ import com.cocus.microservices.cases.dto.CaseDTO;
 import com.cocus.microservices.cases.dto.CaseRequestDTO;
 import com.cocus.microservices.cases.facades.IAuthenticationFacade;
 import com.cocus.microservices.cases.services.CaseService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,14 +32,14 @@ public class CaseController {
     }
 
     @PostMapping(path = "/")
-    public ResponseEntity<CaseBO> saveCase(@RequestBody CaseRequestDTO caseRequest) {
-        return ResponseEntity.ok(this.caseService.saveCase(caseRequest, this.authenticationFacade.extractUsernameFromAuthentication()));
+    public ResponseEntity<CaseBO> saveCase(@RequestHeader HttpHeaders httpHeaders, @RequestBody CaseRequestDTO caseRequest) {
+        return ResponseEntity.ok(this.caseService.saveCase(httpHeaders, caseRequest, this.authenticationFacade.extractUsernameFromAuthentication()));
     }
 
     @PutMapping(path = "/{id}")
-    public ResponseEntity<CaseBO> updateCase(@PathVariable(name = "id") Long id, @RequestBody CaseRequestDTO caseRequest) {
+    public ResponseEntity<CaseBO> updateCase(@RequestHeader HttpHeaders httpHeaders, @PathVariable(name = "id") Long id, @RequestBody CaseRequestDTO caseRequest) {
         caseRequest.setId(id);
-        return ResponseEntity.ok(this.caseService.saveCase(caseRequest, this.authenticationFacade.extractUsernameFromAuthentication()));
+        return ResponseEntity.ok(this.caseService.saveCase(httpHeaders, caseRequest, this.authenticationFacade.extractUsernameFromAuthentication()));
     }
 
     @GetMapping(path = "/{id}")
