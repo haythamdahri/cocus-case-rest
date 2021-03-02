@@ -71,3 +71,9 @@ keycloak:
 logging:
   level:
     org.keycloak: TRACE
+
+# =============================
+# REST CONFIG
+# =============================
+page:
+  default-size: 20

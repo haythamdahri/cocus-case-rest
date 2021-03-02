@@ -34,13 +34,11 @@ public class ApplicationRunner implements CommandLineRunner {
             // Mock Cases
             final String username = "haytham";
             // Get Customer From customer-rest service
-            CustomerDTO customerDTO = this.customerClient.getCustomer(new HttpHeaders(), username).getBody();
-            CustomerBO customer = new CustomerBO(customerDTO.getFirstName(), customerDTO.getLastName(), customerDTO.getUsername(), null);
-            customer.setId(customerDTO.getId());
-            CaseBO case1 = new CaseBO("Label Description", null);
+            CustomerDTO customer = this.customerClient.getCustomer(new HttpHeaders(), username).getBody();
+            CaseBO case1 = new CaseBO("Label Description", null, null, false, null);
             case1 = this.caseRepository.save(case1);
             // Set Customer
-            this.caseRepository.updateCaseCustomer(case1.getId(), customerDTO.getId());
+            this.caseRepository.updateCaseCustomer(case1.getId(), customer.getId());
         }
     }
 }

@@ -5,6 +5,7 @@ import com.cocus.microservices.cases.dto.CaseDTO;
 import com.cocus.microservices.cases.dto.CaseRequestDTO;
 import com.cocus.microservices.cases.facades.IAuthenticationFacade;
 import com.cocus.microservices.cases.services.CaseService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,11 +25,6 @@ public class CaseController {
     public CaseController(CaseService caseService, IAuthenticationFacade authenticationFacade) {
         this.caseService = caseService;
         this.authenticationFacade = authenticationFacade;
-    }
-
-    @GetMapping(path = "/")
-    public ResponseEntity<List<CaseDTO>> getCases() {
-        return ResponseEntity.ok(this.caseService.getCases());
     }
 
     @PostMapping(path = "/")
@@ -54,9 +50,11 @@ public class CaseController {
     }
 
     @GetMapping(path = "/users/current")
-    public ResponseEntity<List<CaseDTO>> getUsersCases() {
+    public ResponseEntity<Page<CaseDTO>> getUsersCases(@RequestParam(value = "search", required = false, defaultValue = "") String search,
+                                                       @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+                                                       @RequestParam(value = "size", required = false, defaultValue = "${page.default-size}") int size) {
         // Retrieve Authenticated User Assigned Cases
-        return ResponseEntity.ok(this.caseService.getUserCases(authenticationFacade.extractUsernameFromAuthentication()));
+        return ResponseEntity.ok(this.caseService.getUserCases(authenticationFacade.extractUsernameFromAuthentication(), search, page, size));
     }
 
 }

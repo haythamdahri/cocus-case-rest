@@ -23,4 +23,6 @@ public class CaseDTO implements Serializable {
     @JsonProperty("content")
     private String content;
 
+    private boolean reviewed;
+
 }

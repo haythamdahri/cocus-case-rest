@@ -3,6 +3,7 @@ package com.cocus.microservices.cases.services;
 import com.cocus.microservices.bo.entities.CaseBO;
 import com.cocus.microservices.cases.dto.CaseDTO;
 import com.cocus.microservices.cases.dto.CaseRequestDTO;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 
 import java.util.List;
@@ -20,6 +21,6 @@ public interface CaseService {
 
     List<CaseDTO> getCases();
 
-    List<CaseDTO> getUserCases(String username);
+    Page<CaseDTO> getUserCases(String username, String search, int page, int size);
 
 }
