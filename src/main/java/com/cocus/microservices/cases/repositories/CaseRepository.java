@@ -24,11 +24,14 @@ public interface CaseRepository extends JpaRepository<CaseBO, Long> {
     @Transactional
     void updateCaseCustomer(@Param("caseId") Long caseId, @Param("customerId") Long customerId);
 
-    @Query(value = "SELECT c FROM CaseBO c WHERE c.customer.username = :username AND c.content LIKE %:search%")
+    @Query(value = "SELECT c FROM CaseBO c WHERE c.customer.username = :username AND LOWER(c.content) LIKE %:search%")
     Page<CaseBO> findCustomerCases(@Param("username") String username,
                                    @Param("search") String search, @PageableDefault Pageable pageable);
 
     @Query(value = "SELECT c FROM CaseBO c WHERE c.customer.username = :username")
     Page<CaseBO> findCustomerCases(String username, @PageableDefault Pageable pageable);
+
+    @Query(value = "SELECT COUNT(c) FROM CaseBO c WHERE c.customer.username = :username")
+    int countUserUnreviewedCases(@Param("username") String username);
 
 }

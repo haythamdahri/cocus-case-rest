@@ -3,6 +3,7 @@ package com.cocus.microservices.cases.controllers;
 import com.cocus.microservices.bo.entities.CaseBO;
 import com.cocus.microservices.cases.dto.CaseDTO;
 import com.cocus.microservices.cases.dto.CaseRequestDTO;
+import com.cocus.microservices.cases.dto.UnreviewedCasesCounterDTO;
 import com.cocus.microservices.cases.facades.IAuthenticationFacade;
 import com.cocus.microservices.cases.services.CaseService;
 import org.springframework.data.domain.Page;
@@ -54,7 +55,12 @@ public class CaseController {
                                                        @RequestParam(value = "page", required = false, defaultValue = "0") int page,
                                                        @RequestParam(value = "size", required = false, defaultValue = "${page.default-size}") int size) {
         // Retrieve Authenticated User Assigned Cases
-        return ResponseEntity.ok(this.caseService.getUserCases(authenticationFacade.extractUsernameFromAuthentication(), search, page, size));
+        return ResponseEntity.ok(this.caseService.getUserCases(authenticationFacade.extractUsernameFromAuthentication(), search.trim(), page, size));
+    }
+
+    @GetMapping(path = "/users/current/unreviewedcases/counter")
+    public ResponseEntity<UnreviewedCasesCounterDTO> getUnreviewedCasesCounter() {
+        return ResponseEntity.ok(this.caseService.getUnreviewedCasesCounter(authenticationFacade.extractUsernameFromAuthentication()));
     }
 
 }

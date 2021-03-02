@@ -1,21 +1,23 @@
 package com.cocus.microservices.cases.services.impl;
 
 import com.cocus.microservices.bo.entities.CaseBO;
+import com.cocus.microservices.bo.entities.LabelBO;
 import com.cocus.microservices.cases.clients.CustomerClient;
-import com.cocus.microservices.cases.dto.CaseDTO;
-import com.cocus.microservices.cases.dto.CaseRequestDTO;
-import com.cocus.microservices.cases.dto.CustomerDTO;
+import com.cocus.microservices.cases.dto.*;
 import com.cocus.microservices.cases.helpers.CustomerHelper;
 import com.cocus.microservices.cases.repositories.CaseRepository;
 import com.cocus.microservices.cases.services.CaseService;
+import com.cocus.microservices.label.exceptions.BusinessException;
 import com.cocus.microservices.label.exceptions.NotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,6 +59,17 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
+    public ReviewDTO getReview(String username, long id) {
+        CaseBO caseBO = this.getCase(id);
+        // Check Owner Is The Provided User
+        if(caseBO.getCustomer() == null || !caseBO.getCustomer().getUsername().equals(username) ) {
+            throw new BusinessException("Reviews does not belong to the provided user!");
+        }
+        // Map CaseBO To ReviewDTO
+        return this.mapCaseBOToReviewBO(caseBO);
+    }
+
+    @Override
     public void deleteCase(Long id) {
         this.caseRepository.deleteById(id);
     }
@@ -72,13 +85,60 @@ public class CaseServiceImpl implements CaseService {
         // Retrieve Customer Cases
         Page<CaseBO> casesPage;
         if(StringUtils.isEmpty(search)) {
-            casesPage = this.caseRepository.findCustomerCases(username, PageRequest.of(page, size));
+            casesPage = this.caseRepository.findCustomerCases(username, PageRequest.of(page, size, Sort.Direction.DESC, "timestamp"));
         } else {
-            casesPage = this.caseRepository.findCustomerCases(username, search, PageRequest.of(page, size));
+            casesPage = this.caseRepository.findCustomerCases(username, search.toLowerCase(), PageRequest.of(page, size, Sort.Direction.DESC, "timestamp"));
         }
         // Map CaseBO content to CaseDTO
         List<CaseDTO> content = casesPage.getContent().stream().map(caseBO -> new CaseDTO(caseBO.getId(),
                 caseBO.getContent(), caseBO.isReviewed())).collect(Collectors.toList());
         return new PageImpl<>(content, casesPage.getPageable(), casesPage.getTotalElements());
+    }
+
+    @Override
+    public UnreviewedCasesCounterDTO getUnreviewedCasesCounter(String username) {
+        return new UnreviewedCasesCounterDTO(this.caseRepository.countUserUnreviewedCases(username));
+    }
+
+    @Override
+    public Page<ReviewDTO> getUserReviews(String username, String label, int page, int size) {
+        Page<CaseBO> casesPage = this.caseRepository.findCustomerCases(username, PageRequest.of(page, size, Sort.Direction.DESC, "timestamp"));;
+        List<CaseBO> content;
+        if( !StringUtils.isEmpty(label) ) {
+            content = casesPage.getContent().stream().filter(caseBO ->
+                    caseBO.getConditions().stream().anyMatch(labelBO -> labelBO.getId() == Long.parseLong(label))
+            ).collect(Collectors.toList());
+        } else {
+            content = casesPage.getContent();
+        }
+        // Map CaseBO to ReviewDTO
+        List<ReviewDTO> cases = new ArrayList<>();
+        if( content != null ) {
+            for( CaseBO caseBO : content ) {
+                cases.add(this.mapCaseBOToReviewBO(caseBO));
+            }
+        }
+        // Return Page
+        return new PageImpl<>(cases, casesPage.getPageable(), casesPage.getTotalElements());
+    }
+
+    private ReviewDTO mapCaseBOToReviewBO(CaseBO caseBO) {
+        ReviewDTO review = new ReviewDTO();
+        review.setId(caseBO.getId());
+        review.setContent(caseBO.getContent());
+        review.setLastReviewDate(caseBO.getLastReviewDate());
+        review.setReviewed(caseBO.isReviewed());
+        // Map LabelBO to LabelDTO
+        if( caseBO.getConditions() != null ) {
+            for( LabelBO label : caseBO.getConditions() ) {
+                review.addLabel(this.mapLabelBOToLabelDTO(label));
+            }
+        }
+        // Return Review
+        return review;
+    }
+
+    private LabelDTO mapLabelBOToLabelDTO(LabelBO labelBO) {
+        return new LabelDTO(labelBO.getId(), labelBO.getDescription());
     }
 }
