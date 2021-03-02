@@ -1,0 +1,73 @@
+spring:
+  # =============================
+  # APPLICATION NAME
+  # =============================
+  application:
+    name: Case-Rest
+  # =============================
+  # DATASOURCE CONFIG
+  # =============================
+  data:
+    jpa:
+      repositories:
+        enabled: false
+    # =============================
+    # REST DATA CONFIG
+    # =============================
+    rest:
+      base-path: /api
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cocus?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: postgres
+    password: Cocus@PT541_D@ata
+    hikari:
+      auto-commit: false
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    hibernate:
+      # =======================================================================
+      # AUTO UPDATE DATABASE SCHEMA (Not Recommended In Production Environment)
+      # =======================================================================
+      ddl-auto: update
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+    show-sql: true
+
+# =============================
+# SERVER CONFIG
+# =============================
+server.port: 8083
+
+# =============================
+# REST URIS + ALLOWED ORIGINS
+# =============================
+com:
+  cocus:
+    allowed-origins: https://localhost:4200
+    customer:
+      uri: http://localhost:8081
+
+# =============================
+# KEYCLOAK
+# =============================
+keycloak:
+  realm: cocus
+  auth-server-url: http://localhost:8080/auth
+  ssl-required: external
+  resource: cocuswebclient
+  credentials:
+    secret: 70702f9b-e348-4005-ab59-ec17fafb1945
+  public-client: true
+  bearer-only: true
+  cors: true
+  security-constraints[0].authRoles[0]: cocus-role
+  security-constraints[0].securityCollections[0].patterns[0]: /api/*
+
+# =============================
+# LOGGING CONFIG
+# =============================
+logging:
+  level:
+    org.keycloak: TRACE
