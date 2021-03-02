@@ -28,15 +28,21 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public CaseBO saveCase(CaseRequestDTO caseRequest) {
+    public CaseBO saveCase(CaseRequestDTO caseRequest, String username) {
         CaseBO applicationCase;
-        if( caseRequest == null ) {
+        if( caseRequest.getId() == null ) {
             applicationCase = new CaseBO();
         } else {
             applicationCase = this.getCase(caseRequest.getId());
         }
         applicationCase.setContent(caseRequest.getContent());
-        return this.caseRepository.save(applicationCase);
+        applicationCase = this.caseRepository.save(applicationCase);
+        // Retrieve Customer
+        CustomerDTO customer = this.customerClient.getCustomer(username).getBody();
+        // Assign Case To The Customer
+        this.caseRepository.updateCaseCustomer(applicationCase.getId(), customer.getId());
+        // Return Case
+        return this.getCase(applicationCase.getId());
     }
 
     @Override

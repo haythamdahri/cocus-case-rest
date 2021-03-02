@@ -33,7 +33,7 @@ public class ApplicationRunner implements CommandLineRunner {
             // Mock Cases
             final String username = "haytham";
             // Get Customer From customer-rest service
-            CustomerDTO customerDTO = this.customerClient.getCustomers(username).getBody();
+            CustomerDTO customerDTO = this.customerClient.getCustomer(username).getBody();
             CustomerBO customer = new CustomerBO(customerDTO.getFirstName(), customerDTO.getLastName(), customerDTO.getUsername(), null);
             customer.setId(customerDTO.getId());
             CaseBO case1 = new CaseBO("Label Description", null);

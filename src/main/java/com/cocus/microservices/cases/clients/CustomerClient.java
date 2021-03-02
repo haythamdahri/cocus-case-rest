@@ -13,6 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface CustomerClient {
 
     @GetMapping(path = "/api/v1/customers/usernames/{username}")
-    ResponseEntity<CustomerDTO> getCustomers(@PathVariable(name = "username") String username);
+    ResponseEntity<CustomerDTO> getCustomer(@PathVariable(name = "username") String username);
 
 }

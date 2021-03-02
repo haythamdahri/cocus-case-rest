@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface CaseService {
 
-    CaseBO saveCase(CaseRequestDTO caseRequest);
+    CaseBO saveCase(CaseRequestDTO caseRequest, String username);
 
     CaseBO getCase(Long id);
 

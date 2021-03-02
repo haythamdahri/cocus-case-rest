@@ -30,22 +30,15 @@ public class CaseController {
         return ResponseEntity.ok(this.caseService.getCases());
     }
 
-    @GetMapping(path = "/currentuser")
-    public ResponseEntity<List<CaseDTO>> getUsersCases() {
-        // Retrieve Authenticated Username
-        final String username = authenticationFacade.extractUsernameFromAuthentication();
-        return ResponseEntity.ok(this.caseService.getUserCases(username));
-    }
-
     @PostMapping(path = "/")
     public ResponseEntity<CaseBO> saveCase(@RequestBody CaseRequestDTO caseRequest) {
-        return ResponseEntity.ok(this.caseService.saveCase(caseRequest));
+        return ResponseEntity.ok(this.caseService.saveCase(caseRequest, this.authenticationFacade.extractUsernameFromAuthentication()));
     }
 
     @PutMapping(path = "/{id}")
     public ResponseEntity<CaseBO> updateCase(@PathVariable(name = "id") Long id, @RequestBody CaseRequestDTO caseRequest) {
         caseRequest.setId(id);
-        return ResponseEntity.ok(this.caseService.saveCase(caseRequest));
+        return ResponseEntity.ok(this.caseService.saveCase(caseRequest, this.authenticationFacade.extractUsernameFromAuthentication()));
     }
 
     @GetMapping(path = "/{id}")
@@ -57,6 +50,12 @@ public class CaseController {
     public ResponseEntity<Void> deleteCase(@PathVariable(name = "id") Long id) {
         this.caseService.deleteCase(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(path = "/users/current")
+    public ResponseEntity<List<CaseDTO>> getUsersCases() {
+        // Retrieve Authenticated User Assigned Cases
+        return ResponseEntity.ok(this.caseService.getUserCases(authenticationFacade.extractUsernameFromAuthentication()));
     }
 
 }

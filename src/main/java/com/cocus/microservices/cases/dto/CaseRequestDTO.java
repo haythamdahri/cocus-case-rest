@@ -21,7 +21,7 @@ public class CaseRequestDTO implements Serializable {
     private static final long serialVersionUID = 3609408843315524505L;
 
     @JsonIgnore
-    private long id;
+    private Long id;
 
     @JsonProperty("content")
     @NotNull
