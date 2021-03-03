@@ -5,10 +5,12 @@ import com.cocus.microservices.bo.entities.LabelBO;
 import com.cocus.microservices.cases.clients.CustomerClient;
 import com.cocus.microservices.cases.dto.*;
 import com.cocus.microservices.cases.helpers.CustomerHelper;
+import com.cocus.microservices.cases.helpers.LabelHelper;
 import com.cocus.microservices.cases.repositories.CaseRepository;
 import com.cocus.microservices.cases.services.CaseService;
 import com.cocus.microservices.label.exceptions.BusinessException;
 import com.cocus.microservices.label.exceptions.NotFoundException;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,10 +32,12 @@ public class CaseServiceImpl implements CaseService {
 
     private final CaseRepository caseRepository;
     private final CustomerHelper customerHelper;
+    private final LabelHelper labelHelper;
 
-    public CaseServiceImpl(CaseRepository caseRepository, CustomerHelper customerHelper) {
+    public CaseServiceImpl(CaseRepository caseRepository, CustomerHelper customerHelper, LabelHelper labelHelper) {
         this.caseRepository = caseRepository;
         this.customerHelper = customerHelper;
+        this.labelHelper = labelHelper;
     }
 
     @Override
@@ -63,9 +68,29 @@ public class CaseServiceImpl implements CaseService {
         CaseBO caseBO = this.getCase(id);
         // Check Owner Is The Provided User
         if(caseBO.getCustomer() == null || !caseBO.getCustomer().getUsername().equals(username) ) {
-            throw new BusinessException("Reviews does not belong to the provided user!");
+            throw new BusinessException("Review does not belong to the provided user!");
         }
         // Map CaseBO To ReviewDTO
+        return this.mapCaseBOToReviewBO(caseBO);
+    }
+
+    @Override
+    public ReviewDTO reviewCase(HttpHeaders httpHeaders, String username, CaseReviewDTO caseReview) {
+        CaseBO caseBO = this.getCase(caseReview.getId());
+        if(ArrayUtils.isNotEmpty(caseReview.getLabels()) ) {
+            for( long labelId : caseReview.getLabels() ) {
+                LabelBO label = this.labelHelper.getLabel(httpHeaders, labelId);
+                if( label != null ) {
+                    caseBO.getConditions().add(label);
+                }
+            }
+        }
+        // Set case as reviewed
+        caseBO.setReviewed(true);
+        caseBO.setLastReviewDate(LocalDateTime.now());
+        // Save Case
+        caseBO = this.caseRepository.save(caseBO);
+        // Map And Return
         return this.mapCaseBOToReviewBO(caseBO);
     }
 
@@ -98,6 +123,16 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public UnreviewedCasesCounterDTO getUnreviewedCasesCounter(String username) {
         return new UnreviewedCasesCounterDTO(this.caseRepository.countUserUnreviewedCases(username));
+    }
+
+    @Override
+    public ReviewDTO getUserFirstUnreviewedReview(String username) {
+        Page<CaseBO> firstCaseToReviewPage = this.caseRepository.findUserFirstUnreviewedCase(username, PageRequest.of(0, 1));
+        if( firstCaseToReviewPage.getContent().isEmpty() ) {
+            return null;
+        }
+        CaseBO caseBO = firstCaseToReviewPage.getContent().get(0);
+        return this.mapCaseBOToReviewBO(caseBO);
     }
 
     @Override

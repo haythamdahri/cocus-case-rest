@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Haytham DAHRI
@@ -34,4 +35,6 @@ public interface CaseRepository extends JpaRepository<CaseBO, Long> {
     @Query(value = "SELECT COUNT(c) FROM CaseBO c WHERE c.customer.username = :username")
     int countUserUnreviewedCases(@Param("username") String username);
 
+    @Query(value = "SELECT c FROM CaseBO c WHERE c.customer.username = :username AND c.reviewed = false ORDER BY c.timestamp DESC")
+    Page<CaseBO> findUserFirstUnreviewedCase(@Param("username") String username, @PageableDefault Pageable pageable);
 }

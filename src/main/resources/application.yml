@@ -48,6 +48,8 @@ com:
     allowed-origins: https://localhost:4200
     customer:
       uri: http://localhost:8081
+    label:
+      uri: http://localhost:8082
 
 # =============================
 # KEYCLOAK
@@ -77,3 +79,23 @@ logging:
 # =============================
 page:
   default-size: 20
+
+# =============================
+# FEIGN CONFIG
+# =============================
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: FULL
+
+# =============================
+# AUTH CONFIG
+# =============================
+auth-config:
+  access-token-uri: http://localhost:8080/auth/realms/cocus/protocol/openid-connect/token
+  client-id: cocusclient
+  client-secret: 70702f9b-e348-4005-ab59-ec17fafb1945
+  scope: roles
+  username: haytham
+  password: haytham@1234

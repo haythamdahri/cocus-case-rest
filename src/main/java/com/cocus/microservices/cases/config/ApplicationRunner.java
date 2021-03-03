@@ -1,13 +1,11 @@
 package com.cocus.microservices.cases.config;
 
 import com.cocus.microservices.bo.entities.CaseBO;
-import com.cocus.microservices.bo.entities.CustomerBO;
 import com.cocus.microservices.cases.clients.CustomerClient;
 import com.cocus.microservices.cases.dto.CustomerDTO;
 import com.cocus.microservices.cases.repositories.CaseRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 
 /**
  * @author Haytham DAHRI
@@ -34,7 +32,7 @@ public class ApplicationRunner implements CommandLineRunner {
             // Mock Cases
             final String username = "haytham";
             // Get Customer From customer-rest service
-            CustomerDTO customer = this.customerClient.getCustomer(new HttpHeaders(), username).getBody();
+            CustomerDTO customer = this.customerClient.getCustomer(username).getBody();
             CaseBO case1 = new CaseBO("Label Description", null, null, false, null);
             case1 = this.caseRepository.save(case1);
             // Set Customer

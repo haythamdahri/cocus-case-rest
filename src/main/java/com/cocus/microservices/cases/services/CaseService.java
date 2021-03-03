@@ -1,10 +1,7 @@
 package com.cocus.microservices.cases.services;
 
 import com.cocus.microservices.bo.entities.CaseBO;
-import com.cocus.microservices.cases.dto.CaseDTO;
-import com.cocus.microservices.cases.dto.CaseRequestDTO;
-import com.cocus.microservices.cases.dto.ReviewDTO;
-import com.cocus.microservices.cases.dto.UnreviewedCasesCounterDTO;
+import com.cocus.microservices.cases.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 
@@ -28,6 +25,10 @@ public interface CaseService {
     Page<CaseDTO> getUserCases(String username, String search, int page, int size);
 
     UnreviewedCasesCounterDTO getUnreviewedCasesCounter(String username);
+
+    ReviewDTO getUserFirstUnreviewedReview(String username);
+
+    ReviewDTO reviewCase(HttpHeaders httpHeaders, String username, CaseReviewDTO caseReview);
 
     Page<ReviewDTO> getUserReviews(String username, String label, int page, int size);
 
