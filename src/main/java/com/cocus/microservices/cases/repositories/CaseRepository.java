@@ -32,7 +32,7 @@ public interface CaseRepository extends JpaRepository<CaseBO, Long> {
     @Query(value = "SELECT c FROM CaseBO c WHERE c.customer.username = :username")
     Page<CaseBO> findCustomerCases(String username, @PageableDefault Pageable pageable);
 
-    @Query(value = "SELECT COUNT(c) FROM CaseBO c WHERE c.customer.username = :username")
+    @Query(value = "SELECT COUNT(c) FROM CaseBO c WHERE c.customer.username = :username and c.reviewed = false")
     int countUserUnreviewedCases(@Param("username") String username);
 
     @Query(value = "SELECT c FROM CaseBO c WHERE c.customer.username = :username AND c.reviewed = false ORDER BY c.timestamp DESC")

@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,9 +79,11 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public ReviewDTO reviewCase(HttpHeaders httpHeaders, String username, CaseReviewDTO caseReview) {
         CaseBO caseBO = this.getCase(caseReview.getId());
+        // Init Case Labels
+        caseBO.setConditions(new HashSet<>());
         if(ArrayUtils.isNotEmpty(caseReview.getLabels()) ) {
             for( long labelId : caseReview.getLabels() ) {
-                LabelBO label = this.labelHelper.getLabel(httpHeaders, labelId);
+                LabelBO label = this.labelHelper.getLabel(labelId);
                 if( label != null ) {
                     caseBO.getConditions().add(label);
                 }

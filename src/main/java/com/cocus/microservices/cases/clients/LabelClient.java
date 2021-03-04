@@ -16,6 +16,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface LabelClient {
 
     @GetMapping(path = "/api/v1/labels/{id}")
-    ResponseEntity<LabelBO> getLabel(@RequestHeader HttpHeaders httpHeaders, @PathVariable(name = "id") Long id);
+    ResponseEntity<LabelBO> getLabel(@PathVariable(name = "id") Long id);
 
 }

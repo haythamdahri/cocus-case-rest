@@ -16,18 +16,13 @@ import org.springframework.stereotype.Component;
 public class LabelHelper {
 
     private final LabelClient labelClient;
-    private static final HttpHeaders HTTP_HEADERS = new HttpHeaders();
 
     public LabelHelper(LabelClient labelClient) {
         this.labelClient = labelClient;
     }
 
-    public LabelBO getLabel(HttpHeaders httpHeaders, long label) {
-        if( httpHeaders == null || !httpHeaders.containsKey(CustomerConstants.AUTHORIZATION_HEADER_KEY) ) {
-            throw new BusinessException("Cannot process request to customer without Authorization header");
-        }
-        HTTP_HEADERS.add(CustomerConstants.AUTHORIZATION_HEADER_KEY, httpHeaders.getFirst(CustomerConstants.AUTHORIZATION_HEADER_KEY));
-        return this.labelClient.getLabel(HTTP_HEADERS, label).getBody();
+    public LabelBO getLabel(long label) {
+        return this.labelClient.getLabel(label).getBody();
     }
 
 }
